@@ -13,16 +13,14 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    SPDX-License-Identifier: Apache License, Version 2.0
+    SPDX-License-Identifier: Apache License Version 2.0
 */
 
-pragma solidity 0.6.10;
+pragma solidity ^0.8.28;
 pragma experimental "ABIEncoderV2";
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { SafeCast } from "@openzeppelin/contracts/utils/SafeCast.sol";
-import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { SignedSafeMath } from "@openzeppelin/contracts/math/SignedSafeMath.sol";
+import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 
 import { ISetToken } from "../../interfaces/ISetToken.sol";
 import { PreciseUnitMath } from "../../lib/PreciseUnitMath.sol";
@@ -39,9 +37,7 @@ import { PreciseUnitMath } from "../../lib/PreciseUnitMath.sol";
  */
 library Position {
     using SafeCast for uint256;
-    using SafeMath for uint256;
     using SafeCast for int256;
-    using SignedSafeMath for int256;
     using PreciseUnitMath for uint256;
 
     /* ============ Helper ============ */
@@ -253,7 +249,7 @@ library Position {
         returns (uint256)
     {
         // If pre action total notional amount is greater then subtract post action total notional and calculate new position units
-        uint256 airdroppedAmount = _preTotalNotional.sub(_prePositionUnit.preciseMul(_setTokenSupply));
-        return _postTotalNotional.sub(airdroppedAmount).preciseDiv(_setTokenSupply);
+        uint256 airdroppedAmount = (_preTotalNotional - _prePositionUnit).preciseMul(_setTokenSupply);
+        return (_postTotalNotional - airdroppedAmount).preciseDiv(_setTokenSupply);
     }
 }

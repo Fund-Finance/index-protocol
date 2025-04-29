@@ -13,17 +13,15 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    SPDX-License-Identifier: Apache License, Version 2.0
+    SPDX-License-Identifier: Apache License Version 2.0
 */
 
-pragma solidity 0.6.10;
+pragma solidity ^0.8.28;
 pragma experimental "ABIEncoderV2";
 
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { SafeCast } from "@openzeppelin/contracts/utils/SafeCast.sol";
-import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { SignedSafeMath } from "@openzeppelin/contracts/math/SignedSafeMath.sol";
+import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 
 import { IController } from "../interfaces/IController.sol";
 import { IModule } from "../interfaces/IModule.sol";
@@ -41,10 +39,8 @@ import { AddressArrayUtils } from "../lib/AddressArrayUtils.sol";
  * from the SetToken. 
  */
 contract SetToken is ERC20 {
-    using SafeMath for uint256;
     using SafeCast for int256;
     using SafeCast for uint256;
-    using SignedSafeMath for int256;
     using PreciseUnitMath for int256;
     using Address for address;
     using AddressArrayUtils for address[];
@@ -526,7 +522,7 @@ contract SetToken is ERC20 {
         address[] memory externalModules = _externalPositionModules(_component);
         for (uint256 i = 0; i < externalModules.length; i++) {
             // We will perform the summation no matter what, as an external position virtual unit can be negative
-            totalUnits = totalUnits.add(getExternalPositionRealUnit(_component, externalModules[i]));
+            totalUnits = totalUnits + getExternalPositionRealUnit(_component, externalModules[i]);
         }
 
         return totalUnits;
@@ -599,7 +595,7 @@ contract SetToken is ERC20 {
      */
     function _getPositionsAbsMinimumVirtualUnit() internal view returns(int256) {
         // Additional assignment happens in the loop below
-        uint256 minimumUnit = uint256(-1);
+        uint256 minimumUnit = PreciseUnitMath.maxUint256();
 
         for (uint256 i = 0; i < components.length; i++) {
             address component = components[i];
@@ -644,7 +640,7 @@ contract SetToken is ERC20 {
             // Increment the position count by each external position module
             address[] memory externalModules = _externalPositionModules(component);
             if (externalModules.length > 0) {
-                positionCount = positionCount.add(externalModules.length);  
+                positionCount = positionCount + externalModules.length;  
             }
         }
 

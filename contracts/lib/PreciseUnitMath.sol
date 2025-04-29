@@ -13,15 +13,13 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    SPDX-License-Identifier: Apache License, Version 2.0
+    SPDX-License-Identifier: Apache License Version 2.0
 */
 
-pragma solidity 0.6.10;
+pragma solidity ^0.8.28;
 pragma experimental ABIEncoderV2;
 
-import { SafeCast } from "@openzeppelin/contracts/utils/SafeCast.sol";
-import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { SignedSafeMath } from "@openzeppelin/contracts/math/SignedSafeMath.sol";
+import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 
 
 /**
@@ -38,8 +36,6 @@ import { SignedSafeMath } from "@openzeppelin/contracts/math/SignedSafeMath.sol"
  * - 12/13/21: Added abs function
  */
 library PreciseUnitMath {
-    using SafeMath for uint256;
-    using SignedSafeMath for int256;
     using SafeCast for int256;
 
     // The number One in precise units.
@@ -92,7 +88,7 @@ library PreciseUnitMath {
      * of a number with 18 decimals precision.
      */
     function preciseMul(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a.mul(b).div(PRECISE_UNIT);
+        return (a * b) / PRECISE_UNIT;
     }
 
     /**
@@ -100,7 +96,7 @@ library PreciseUnitMath {
      * significand of a number with 18 decimals precision.
      */
     function preciseMul(int256 a, int256 b) internal pure returns (int256) {
-        return a.mul(b).div(PRECISE_UNIT_INT);
+        return (a * b) / PRECISE_UNIT_INT;
     }
 
     /**
@@ -111,14 +107,14 @@ library PreciseUnitMath {
         if (a == 0 || b == 0) {
             return 0;
         }
-        return a.mul(b).sub(1).div(PRECISE_UNIT).add(1);
+        return (((a * b) - 1) / PRECISE_UNIT) + 1;
     }
 
     /**
      * @dev Divides value a by value b (result is rounded down).
      */
     function preciseDiv(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a.mul(PRECISE_UNIT).div(b);
+        return (a * PRECISE_UNIT) / b;
     }
 
 
@@ -126,7 +122,7 @@ library PreciseUnitMath {
      * @dev Divides value a by value b (result is rounded towards 0).
      */
     function preciseDiv(int256 a, int256 b) internal pure returns (int256) {
-        return a.mul(PRECISE_UNIT_INT).div(b);
+        return (a * PRECISE_UNIT_INT) / b;
     }
 
     /**
@@ -135,7 +131,7 @@ library PreciseUnitMath {
     function preciseDivCeil(uint256 a, uint256 b) internal pure returns (uint256) {
         require(b != 0, "Cant divide by 0");
 
-        return a > 0 ? a.mul(PRECISE_UNIT).sub(1).div(b).add(1) : 0;
+        return a > 0 ? ((((a * PRECISE_UNIT) - 1) / b) + 1) : 0;
     }
 
     /**
@@ -145,8 +141,8 @@ library PreciseUnitMath {
     function preciseDivCeil(int256 a, int256 b) internal pure returns (int256) {
         require(b != 0, "Cant divide by 0");
         
-        a = a.mul(PRECISE_UNIT_INT);
-        int256 c = a.div(b);
+        a = a * PRECISE_UNIT_INT;
+        int256 c = a / b;
 
         if (a % b != 0) {
             // a ^ b == 0 case is covered by the previous if statement, hence it won't resolve to --c
@@ -163,7 +159,7 @@ library PreciseUnitMath {
         require(b != 0, "Cant divide by 0");
         require(a != MIN_INT_256 || b != -1, "Invalid input");
 
-        int256 result = a.div(b);
+        int256 result = a / b;
         if (a ^ b < 0 && a % b != 0) {
             result -= 1;
         }
@@ -176,7 +172,7 @@ library PreciseUnitMath {
      * (positive values are rounded towards zero and negative values are rounded away from 0).
      */
     function conservativePreciseMul(int256 a, int256 b) internal pure returns (int256) {
-        return divDown(a.mul(b), PRECISE_UNIT_INT);
+        return divDown(a * b, PRECISE_UNIT_INT);
     }
 
     /**
@@ -184,7 +180,7 @@ library PreciseUnitMath {
      * (positive values are rounded towards zero and negative values are rounded away from 0).
      */
     function conservativePreciseDiv(int256 a, int256 b) internal pure returns (int256) {
-        return divDown(a.mul(PRECISE_UNIT_INT), b);
+        return divDown(a * PRECISE_UNIT_INT, b);
     }
 
     /**
@@ -205,7 +201,7 @@ library PreciseUnitMath {
             uint256 previousResult = result;
 
             // Using safemath multiplication prevents overflows
-            result = previousResult.mul(a);
+            result = previousResult * a;
         }
 
         return result;
@@ -215,14 +211,14 @@ library PreciseUnitMath {
      * @dev Returns true if a =~ b within range, false otherwise.
      */
     function approximatelyEquals(uint256 a, uint256 b, uint256 range) internal pure returns (bool) {
-        return a <= b.add(range) && a >= b.sub(range);
+        return a <= b + range && a >= b - range;
     }
 
     /**
      * Returns the absolute value of int256 `a` as a uint256
      */
     function abs(int256 a) internal pure returns (uint) {
-        return a >= 0 ? a.toUint256() : a.mul(-1).toUint256();
+        return a >= 0 ? a.toUint256() : (a * -1).toUint256();
     }
 
     /**
