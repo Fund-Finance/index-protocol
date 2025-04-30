@@ -157,7 +157,7 @@ contract Controller is Ownable {
      *
      * @param _setToken               Address of the SetToken contract to add
      */
-    function addSet(address _setToken) external onlyInitialized onlyFactory {
+    function addSet(address _setToken) external onlyInitialized {
         require(!isSet[_setToken], "Set already exists");
 
         isSet[_setToken] = true;
