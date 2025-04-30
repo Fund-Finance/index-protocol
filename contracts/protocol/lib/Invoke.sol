@@ -13,13 +13,12 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    SPDX-License-Identifier: Apache License, Version 2.0
+    SPDX-License-Identifier: Apache License Version 2.0
 */
 
-pragma solidity 0.6.10;
+pragma solidity ^0.8.28;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
 import { ISetToken } from "../../interfaces/ISetToken.sol";
 
@@ -31,7 +30,6 @@ import { ISetToken } from "../../interfaces/ISetToken.sol";
  * A collection of common utility functions for interacting with the SetToken's invoke function
  */
 library Invoke {
-    using SafeMath for uint256;
 
     /* ============ Internal ============ */
 
@@ -109,7 +107,7 @@ library Invoke {
 
             // Verify only the transfer quantity is subtracted
             require(
-                newBalance == existingBalance.sub(_quantity),
+                newBalance == existingBalance - _quantity,
                 "Invalid post transfer balance"
             );
         }

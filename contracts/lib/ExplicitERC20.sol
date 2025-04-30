@@ -13,14 +13,12 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    SPDX-License-Identifier: Apache License, Version 2.0
+    SPDX-License-Identifier: Apache License Version 2.0
 */
 
-pragma solidity 0.6.10;
+pragma solidity ^0.8.28;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
 /**
  * @title ExplicitERC20
@@ -29,7 +27,6 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
  * Utility functions for ERC20 transfers that require the explicit amount to be transferred.
  */
 library ExplicitERC20 {
-    using SafeMath for uint256;
 
     /**
      * When given allowance, transfers a token from the "_from" to the "_to" of quantity "_quantity".
@@ -52,8 +49,7 @@ library ExplicitERC20 {
         if (_quantity > 0) {
             uint256 existingBalance = _token.balanceOf(_to);
 
-            SafeERC20.safeTransferFrom(
-                _token,
+            _token.transferFrom(
                 _from,
                 _to,
                 _quantity
@@ -63,7 +59,7 @@ library ExplicitERC20 {
 
             // Verify transfer quantity is reflected in balance
             require(
-                newBalance == existingBalance.add(_quantity),
+                newBalance == existingBalance + _quantity,
                 "Invalid post transfer balance"
             );
         }
